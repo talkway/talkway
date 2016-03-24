@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "gm.layout": "0.0.2"
+    "gm.layout": "0.0.2",
+    "zepto": "^1.0.1"
   }
 }

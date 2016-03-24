@@ -18,19 +18,27 @@
 
 		<h1>TALKWAY</h1>
 
-		<dl>
-			<dt>Latitude:</dt>
-			<dd id="Latitude"></dd>
+		<section class="position">
+			<dl>
+				<dt>Latitude:</dt>
+				<dd id="Latitude"></dd>
 
-			<dt>Longitude:</dt>
-			<dd id="Longitude"></dd>
-		</dl>
+				<dt>Longitude:</dt>
+				<dd id="Longitude"></dd>
+			</dl>
+		</section>
 
-		<form id="Talkway" action="index.html" method="post">
-			<textarea name="Message" rows="8" cols="40"></textarea>
-			<input type="submit" name="submit" value="submit">
-		</form>
+		<section class="messages">
+			<form id="Talkway" action="index.html" method="post">
+				<textarea name="Message" rows="8" cols="40"></textarea>
+				<input type="submit" name="submit" value="submit">
+			</form>
+
+			<dl class="message list"></dl>
+		</section>
 
 		<script src="../code/locator.js" charset="utf-8"></script>
+		<script src="../code/message.js" charset="utf-8"></script>
+		<script src="../code/messagelist.js" charset="utf-8"></script>
 	</body>
 </html>
