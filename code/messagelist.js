@@ -18,14 +18,8 @@ MessageList.push( Message );
 
 // View
 function MessageListView ( data ) {
-	var el = document.createElement ( 'dl' );
-
-	(el.classList) ? el.classList.add('message', 'list') : el.className += ' ' + 'message list';
-
-	var fragment = data.map( createChild ).join('');
-	el.innerHTML = fragment;
-
-	return el;
+	
+	return data.map( createChild ).join('');
 
 	function createChild ( el ) {
 		// TODO: add Babel or Webpack so we can use sweet sweet ES6 in the browser.
@@ -38,8 +32,8 @@ function MessageListView ( data ) {
 
 // Controller
 function MessageController () {
-	var List = MessageListView( MessageList );
-	document.getElementsByTagName('body')[0].appendChild( List );
+	var el = document.querySelector( '.message.list' );
+	el.innerHTML = MessageListView( MessageList );
 }
 
 // Simulate incoming message
