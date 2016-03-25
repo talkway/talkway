@@ -1,6 +1,8 @@
-var User = require( './user.js' );
+'use strict';
 
-var Message = {
+let User = require( './user.js' );
+
+let Message = {
 	id:       Number,
 	user:     User,
 	data:     String,
