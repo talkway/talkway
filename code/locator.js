@@ -1,3 +1,5 @@
+'use strict';
+
 // # Algorithms
 function checkGeolocationSupport() {
 	// check for Geolocation support
