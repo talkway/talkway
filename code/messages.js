@@ -1,16 +1,7 @@
 // Messages Data Source
+'use strict';
 
-// Stubs
-var Message = {
-	id: 1,
-	user: {
-		id: 1,
-		name: "Garbrand"
-	},
-	data: "Hello, World!",
-	metadata: null
-}
+let datasource  = require('./lib/datasource.js');
+let MessageList = datasource();
 
-var MessageList = [];
-
-MessageList.push( Message );
+module.exports = MessageList;

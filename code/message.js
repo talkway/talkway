@@ -1,38 +1,40 @@
 'use strict';
 
 // Types
-var User = {
+// TODO: require these from types repo
+let User = {
 	id:   Number,
 	name: String
 }
 
-var Message = {
+let Message = {
 	id:       Number,
 	user:     User,
 	data:     String,
 	metadata: Object
 }
 
+let datasource;
 
-function controller ( ) {
-	// when 'submit' is clicked, parse the form, create a message, push it to the message list (for now)
-	var form = document.getElementById('Talkway');
+function controller ( ds ) {
+	// when 'submit' is clicked, parse the form, create a message, push it to the datasource (for now)
+	let form = document.getElementById('Talkway');
 	form.addEventListener( 'submit', formHandler );
+
+	datasource = ds;
 }
 
 function formHandler( event ) {
 	event.preventDefault();
-	var message = createMessage ( { message: event.target.elements[0].value } );
+	let message = createMessage ( { message: event.target.elements[0].value } );
 
-	// TODO: take this out...
-	MessageList.push( message );
-	MessageController( MessageList );
+	datasource.push( message );
 }
 
 
 function createMessage ( data ) {
 	// Create a message type from the defined structure
-	var message = Object.assign( {}, Message );
+	let message = Object.assign( {}, Message );
 
 	// Populate the message type (we can later check against the structure)
 	message.id       = Math.random();
@@ -44,4 +46,4 @@ function createMessage ( data ) {
 }
 
 
-controller();
+module.exports = controller;

@@ -1,20 +1,19 @@
 // # Algorithms
 function checkGeolocationSupport() {
 	// check for Geolocation support
-	if (navigator.geolocation) {
-	  console.log('Geolocation is supported!');
-	}
-	else {
-	  alert('Geolocation is not supported for this Browser/OS version yet.');
-	}
+	( navigator.geolocation ) ?
+		console.log('Geolocation is supported.') :
+		alert('Geolocation is not supported for this Browser/OS version yet.')
+	;
 }
 
 function positionHandler ( position ) {
 	// Handle position information
 	document.getElementById( 'Latitude' ).innerHTML  = position.coords.latitude;
 	document.getElementById( 'Longitude' ).innerHTML = position.coords.longitude;
-	
-	console.log( "latitude: %s \t longitude: %s", position.coords.latitude, position.coords.longitude );
+
+	// console.log( "lat: %s lng: %s", position.coords.latitude, position.coords.longitude );
+	console.log( position.coords );
 }
 
 function errorHandler ( error ) {
