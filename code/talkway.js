@@ -29,11 +29,8 @@ setTimeout( () => messages.push( Message ), Math.random() * 5 * 1000 );
 // Echo messages (very annoying)
 function echo( datasource, data ) {
 	if (data.user.id !== 1) {
-		let msg = {};
+		let msg = Object.assign( {}, Message );
 
-		Object.assign( msg, data );
-
-		msg.user = User;
 		msg.data = "Yes, "+ data.data + "!";
 
 		setTimeout( () => datasource.push( msg ), Math.random() * 2 * 1000 );

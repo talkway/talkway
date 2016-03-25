@@ -190,11 +190,8 @@ setTimeout(function () {
 function echo(datasource, data) {
 	if (data.user.id !== 1) {
 		(function () {
-			var msg = {};
+			var msg = Object.assign({}, Message);
 
-			Object.assign(msg, data);
-
-			msg.user = User;
 			msg.data = "Yes, " + data.data + "!";
 
 			setTimeout(function () {
