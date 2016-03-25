@@ -186,19 +186,22 @@ setTimeout(function () {
 	return messages.push(Message);
 }, Math.random() * 5 * 1000);
 
+// Echo messages (very annoying)
 function echo(datasource, data) {
 	if (data.user.id !== 1) {
-		var msg = {};
+		(function () {
+			var msg = {};
 
-		Object.assign(msg, data);
+			Object.assign(msg, data);
 
-		msg.user = User;
-		msg.data = "Yes, " + data.data + "!";
+			msg.user = User;
+			msg.data = "Yes, " + data.data + "!";
 
-		datasource.push(msg);
+			setTimeout(function () {
+				return datasource.push(msg);
+			}, Math.random() * 2 * 1000);
+		})();
 	}
-
-	console.log(datasource);
 }
 
 messages.subscribe(echo);
