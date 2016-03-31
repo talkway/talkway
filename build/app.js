@@ -4,7 +4,7 @@
 module.exports = function DataSourceFactory() {
 	// DataSourceFactory extends Array, and wraps 'push' so it can be used for pub/sub.
 	var array = new (Function.prototype.bind.apply(Array, [null].concat(Array.prototype.slice.call(arguments))))();
-	var subscribers = [];
+	// let subscribers = []; // TODO: this is a shared variable across all datasources
 
 	// Mixing in custom methods
 	Object.defineProperties(array, {
@@ -17,7 +17,7 @@ module.exports = function DataSourceFactory() {
 				Array.prototype.push.call(array, data);
 
 				// Call each subscriber with data & array
-				subscribers.forEach(function (fn) {
+				array.__subscribers.forEach(function (fn) {
 					return fn(array, data);
 				});
 			}
@@ -25,8 +25,12 @@ module.exports = function DataSourceFactory() {
 		'subscribe': {
 			enumerable: false,
 			value: function value(fn) {
-				subscribers.push(fn);
+				array.__subscribers.push(fn);
 			}
+		},
+		'__subscribers': {
+			enumerable: false,
+			value: []
 		}
 	});
 
@@ -37,6 +41,7 @@ module.exports = function DataSourceFactory() {
 'use strict';
 
 // # Algorithms
+
 function checkGeolocationSupport() {
 	// check for Geolocation support
 	navigator.geolocation ? console.log('Geolocation is supported.') : alert('Geolocation is not supported for this Browser/OS version yet.');
