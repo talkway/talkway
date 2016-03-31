@@ -8,3 +8,5 @@ let Message = {
 	data:     String,
 	metadata: Object
 }
+
+module.exports = Message;

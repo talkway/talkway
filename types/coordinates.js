@@ -9,3 +9,5 @@ let Coordinates = {
 	longitude:        Number,
 	speed:            Number
 }
+
+module.exports = Coordinates;
