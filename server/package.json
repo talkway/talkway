@@ -1,0 +1,18 @@
+{
+  "name": "talkway-server",
+  "version": "1.0.0",
+  "description": "Backend for Talkway",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "import": "./test/stubs/import.sh"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "highland": "^2.7.4",
+    "mongoose": "^4.4.12",
+    "primus": "^5.1.0",
+    "ws": "^1.1.0"
+  }
+}
