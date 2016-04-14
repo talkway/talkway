@@ -1,7 +1,8 @@
 'use strict';
 
-let db     = require( './services/db.js' );
-let http   = require( './services/http.js' );
+let db          = require( './services/db.js' );
+let http        = require( './services/http.js' );
+// let persistence = require( './services/persistence.js' );
 
 let config = [
 	{
@@ -37,4 +38,4 @@ process.on('uncaughtException', errorHandler );
 
 const server = compose( config );
 
-boot( server ).then( console.log ).catch( errorHandler );
+boot( server ).catch( errorHandler );

@@ -4,6 +4,7 @@
   "description": "Backend for Talkway",
   "main": "index.js",
   "scripts": {
+    "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "db": "mongod --dbpath=./.db",
     "import": "./test/stubs/import.sh"
