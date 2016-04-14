@@ -1,7 +1,6 @@
 'use strict';
 
 const mongoose = require( 'mongoose' );
-let _          = require( 'highland' );
 const db       = mongoose.connection;
 
 function boot( config ) {

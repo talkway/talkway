@@ -23,7 +23,7 @@ function boot() {
 		coordinates: [ -73.93414657, 40.82302903 ]
 	};
 
-	// Find the neighbourhood the user is in
+	// Find the neighbourhood the user on FakedLocation is in
 	Neighbourhood.findOne({
 		geometry: {
 			$geoIntersects: {
