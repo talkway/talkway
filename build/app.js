@@ -4,7 +4,6 @@
 module.exports = function DataSourceFactory() {
 	// DataSourceFactory extends Array, and wraps 'push' so it can be used for pub/sub.
 	var array = new (Function.prototype.bind.apply(Array, [null].concat(Array.prototype.slice.call(arguments))))();
-	// let subscribers = []; // TODO: this is a shared variable across all datasources
 
 	// Mixing in custom methods
 	Object.defineProperties(array, {
