@@ -9,7 +9,7 @@ mongoose.connect('mongodb://localhost/test').then( boot ).catch( console.error )
 mongoose.connection.on('error', console.error );
 mongoose.connection.once('connection', console.log );
 
-module.exports.boot = function boot() {
+function boot() {
 	console.log( 'Instantiating models' );
 
 	let Restaurant    = mongoose.model( 'restaurant', RestaurantSchema );
@@ -32,3 +32,5 @@ module.exports.boot = function boot() {
 		}
 	}).then( console.log ).catch( console.error );
 }
+
+module.exports.boot = boot;
