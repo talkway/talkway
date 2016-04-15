@@ -2,14 +2,20 @@
 
 let db          = require( './services/db.js' );
 let http        = require( './services/http.js' );
-// let persistence = require( './services/persistence.js' );
+let persistence = require( './services/persistence.js' );
 
 let config = [
 	{
 		service: db,
+		name: 'db',
 		config: { uri: 'mongodb://localhost/talkway' }
 	}, {
 		service: http,
+		name: 'http',
+		config: { port: 9000 }
+	}, {
+		service: persistence,
+		name: 'persistence',
 		config: {}
 	}
 ];

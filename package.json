@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha",
-    "build": "browserify ./code/talkway.js -t babelify --outfile ./build/app.js --source-maps"
+    "build": "browserify ./code/talkway.js -t babelify --outfile ./client/build/app.js --source-maps"
   },
   "author": "",
   "license": "ISC",
