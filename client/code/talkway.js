@@ -37,4 +37,17 @@ function echo( datasource, data ) {
 	}
 }
 
+let Primus = window.Primus;
+
+window.socket = Primus.connect( { url: "http://localhost:8080/" });
+
+socket.on('open', ( data ) => {
+	console.log( 'open' );
+	socket.write( 'Hello from the client!' );
+} );
+
+socket.on('data', ( data ) => console.log( data ) );
+socket.on('error', ( data ) => console.error( data ) );
+
+
 messages.subscribe( echo );

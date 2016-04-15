@@ -15,22 +15,27 @@ function boot() {
 	let Restaurant    = mongoose.model( 'restaurant', RestaurantSchema );
 	let Neighbourhood = mongoose.model( 'neighbourhood', NeighbourhoodSchema );
 
-	let r = Restaurant.findOne( ).then( console.log ).catch( console.error );
-	let n = Neighbourhood.findOne( ).then( console.log ).catch( console.error );
+	function query() {
+		let r = Restaurant.findOne( ).then( console.log ).catch( console.error );
+		let n = Neighbourhood.findOne( ).then( console.log ).catch( console.error );
 
-	let FakedLocation = {
-		type: "Point",
-		coordinates: [ -73.93414657, 40.82302903 ]
+		let FakedLocation = {
+			type: "Point",
+			coordinates: [ -73.93414657, 40.82302903 ]
+		};
+
+
+		// Find the neighbourhood the user on FakedLocation is in
+		Neighbourhood.findOne({
+			geometry: {
+				$geoIntersects: {
+					$geometry: FakedLocation
+				}
+			}
+		}).then( console.log ).catch( console.error );
 	};
 
-	// Find the neighbourhood the user on FakedLocation is in
-	Neighbourhood.findOne({
-		geometry: {
-			$geoIntersects: {
-				$geometry: FakedLocation
-			}
-		}
-	}).then( console.log ).catch( console.error );
+	// query();
 }
 
 module.exports.boot = boot;

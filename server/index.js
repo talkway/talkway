@@ -7,16 +7,16 @@ let persistence = require( './services/persistence.js' );
 let config = [
 	{
 		service: db,
-		name: 'db',
-		config: { uri: 'mongodb://localhost/talkway' }
+		name   : 'db',
+		config : { uri: 'mongodb://localhost/talkway' }
 	}, {
 		service: http,
-		name: 'http',
-		config: { port: 9000 }
+		name   : 'http',
+		config : { port: 8080 }
 	}, {
 		service: persistence,
-		name: 'persistence',
-		config: {}
+		name   : 'persistence',
+		config : {}
 	}
 ];
 

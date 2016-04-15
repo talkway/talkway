@@ -205,6 +205,22 @@ function echo(datasource, data) {
 	}
 }
 
+var Primus = window.Primus;
+
+window.socket = Primus.connect({ url: "http://localhost:8080/" });
+
+socket.on('open', function (data) {
+	console.log('open');
+	socket.write('Hello from the client!');
+});
+
+socket.on('data', function (data) {
+	return console.log(data);
+});
+socket.on('error', function (data) {
+	return console.error(data);
+});
+
 messages.subscribe(echo);
 
 },{"./locator.js":2,"./message.js":3,"./messagelist.js":4,"./messages.js":5}]},{},[6]);
