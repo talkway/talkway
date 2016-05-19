@@ -8,7 +8,6 @@ let http   = require( 'http' );
 let Primus = require( 'primus' );
 let ws     = require( 'ws' );
 let fs     = require( 'fs' );
-let path   = require( 'path' );
 
 function boot( config ) {
 	let port = config && config.port || 8080;
@@ -16,8 +15,10 @@ function boot( config ) {
 	let server = createServer( config );
 	let socket = attachWebsocket( server );
 
+
 	// Activate shortcut to primus build folder:
 	socket.library();
+
 
 	// Attach generic logging handler to events
 	let events = [ 'data', 'open', 'close', 'connection', 'disconnection', 'reconnection'];
@@ -25,10 +26,12 @@ function boot( config ) {
 
 	socket.on('error', ( error ) => console.error( "Websocket Error:", error ) );
 
+
 	// Connection callback
 	socket.on('connection', ( stream ) => stream.write( file, 'MESSAGE FROM SERVER') );
 
 	console.log( `http server listening on port ${port}` );
+
 	return server.listen( port );
 }
 
@@ -53,7 +56,7 @@ function attachWebsocket( server ) {
 		iknowhttpsisbetter: true
 	} );
 
-	console.log( "Webocket created: ", socket.constructor.name );
+	console.log( "Websocket attached: ", socket.constructor.name );
 
 	return socket;
 }

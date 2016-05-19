@@ -190,7 +190,7 @@ setTimeout(function () {
 	return messages.push(Message);
 }, Math.random() * 5 * 1000);
 
-// Echo messages (very annoying)
+// Echo messages (very annoying ¯\_(ツ)_/¯ )
 function echo(datasource, data) {
 	if (data.user.id !== 1) {
 		(function () {
@@ -205,6 +205,7 @@ function echo(datasource, data) {
 	}
 }
 
+// TODO: move to a transport service
 var Primus = window.Primus;
 
 window.socket = Primus.connect({ url: "http://localhost:8080/" });

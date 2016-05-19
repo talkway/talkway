@@ -4,18 +4,15 @@ let mongoose            = require( 'mongoose' );
 let RestaurantSchema    = require( './schemas/restaurant.js' );
 let NeighbourhoodSchema = require( './schemas/neighbourhood.js' );
 
-mongoose.connect('mongodb://localhost/test').then( boot ).catch( console.error );
 
-mongoose.connection.on('error', console.error );
-mongoose.connection.once('connection', console.log );
-
-function boot() {
+function test( mongoose ) {
 	console.log( 'Instantiating models' );
 
-	let Restaurant    = mongoose.model( 'restaurant', RestaurantSchema );
+	// let Restaurant    = mongoose.model( 'restaurant', RestaurantSchema );
 	let Neighbourhood = mongoose.model( 'neighbourhood', NeighbourhoodSchema );
+	let Restaurant    = mongoose.model( 'restaurant', RestaurantSchema );
 
-	function query() {
+	return function query( callback ) {
 		let r = Restaurant.findOne( ).then( console.log ).catch( console.error );
 		let n = Neighbourhood.findOne( ).then( console.log ).catch( console.error );
 
@@ -32,10 +29,18 @@ function boot() {
 					$geometry: FakedLocation
 				}
 			}
-		}).then( console.log ).catch( console.error );
+		}).then( callback ).catch( console.error );
 	};
+};
 
-	// query();
+function boot( config ) {
+	return test( mongoose )( console.log );
 }
 
+function halt() {
+	// noop
+}
+
+
 module.exports.boot = boot;
+module.exports.halt = halt;

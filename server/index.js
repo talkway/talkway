@@ -26,6 +26,8 @@ function compose( services ) {
 	// 3. Otherwise, throw error and crash.
 	// return services.map( ( s ) => s.service.boot( s.config || null ) );
 	return services.map( ( s ) => s.service.boot( s.config || null ) );
+
+	// Returns an Array of Promises
 }
 
 function boot( server ) {
@@ -37,6 +39,11 @@ function boot( server ) {
 function errorHandler( error ) {
 	console.error( 'Crashing server on error:' );
 	console.error( error );
+
+	// const halt = server.map( ( service ) => service.halt() );
+	// TODO: change to a programmatic approach (define service API)
+
+
 	process.exit( 1 );
 }
 
