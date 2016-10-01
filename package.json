@@ -5,17 +5,23 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha",
-    "build": "browserify ./code/talkway.js -t babelify --outfile ./build/app.js --source-maps"
+    "build": "browserify ./code/talkway.js -t babelify --outfile ./static/app.js --source-maps"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "ecstatic": "^2.1.0",
     "gm.layout": "0.0.2",
+    "highland": "^2.10.0",
+    "shoe": "0.0.15",
+    "through": "^2.3.8",
     "zepto": "^1.0.1"
   },
   "devDependencies": {
-    "babel-preset-es2015": "^6.9.0",
+    "babel-preset-es2015": "^6.16.0",
     "babelify": "^7.3.0",
-    "browserify": "^13.0.1"
+    "browserify": "^13.0.1",
+    "ecstatic": "^2.1.0",
+    "watchify": "^3.7.0"
   }
 }

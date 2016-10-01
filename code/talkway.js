@@ -4,16 +4,18 @@
 
 // Datasources
 let messages    = require( './messages.js' );
+let socket      = require( 'shoe' );
 
 // Components -- inject DS into components?
 let locator     = require( './locator.js' );
+let speech      = require( './speech.js' );
 let message     = require( './message.js' )( messages );
 let messagelist = require( './messagelist.js' )( messages );
 
 // Stub
 let User = {
 	id: 1,
-	name: "Garbrand"
+	name: "Echo Bot"
 }
 
 let Message = {
@@ -38,3 +40,7 @@ function echo( datasource, data ) {
 }
 
 messages.subscribe( echo );
+
+
+// Activate speech recognition
+speech( socket );

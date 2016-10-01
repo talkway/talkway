@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Speech</title>
+	</head>
+	<body>
+
+		<h1>TALKWAY</h1>
+
+		<section class="SpeechRecognition">
+			<h2 id="callsign">Register your callsign</h2>
+			<button id="register">Click &amp; Speak to Register</button>
+			<button id="record" disabled="true">Click &amp; Speak to Message</button>
+		</section>
+
+		<section class="position">
+			<dl>
+				<dt>Latitude:</dt>
+				<dd id="Latitude"></dd>
+
+				<dt>Longitude:</dt>
+				<dd id="Longitude"></dd>
+			</dl>
+		</section>
+
+		<section class="messages">
+			<form id="Talkway" action="index.html" method="post">
+				<textarea name="Message" rows="8" cols="40"></textarea>
+				<input type="submit" name="submit" value="submit">
+			</form>
+
+			<dl class="message list"></dl>
+		</section>
+
+		<script src="./app.js" charset="utf-8"></script>
+	</body>
+</html>
