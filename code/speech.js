@@ -52,9 +52,11 @@ function controller() {
 		$callsign.textContent = result;
 		$record.removeAttribute( 'disabled' );
 
-		console.log( result );
+		let message = { event: 'register', data: result };
 
-		register$.write( JSON.stringify( result ) );
+		console.log( typeof message, message );
+
+		register$.write( JSON.stringify( message ) );
 	};
 
 	// Hook up
