@@ -4,8 +4,6 @@
 
 // Datasources
 let messages    = require( './messages.js' );
-let socket      = require( 'shoe' );
-let _           = require( 'highland' );
 
 // Components -- inject DS into components?
 let locator     = require( './locator.js' );
@@ -44,6 +42,4 @@ messages.subscribe( echo );
 
 
 // Activate speech recognition
-speech( socket );
-
-let t = _( socket ).each( _.log );
+speech( );

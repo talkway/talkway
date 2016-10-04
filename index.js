@@ -15,9 +15,10 @@ const message$   = client$.fork().where( { event: "message" } ).each( _.log );
 
 // Create the socket
 let estimationSocket = shoe( function ( stream /* SocketJS stream */ ) {
+	_(stream).observe().each( _.log );
 	stream.pipe( client$ );
 
-	// test$.observe().pipe( stream ); // Pipe test messages to the stream
+	// test$.fork().pipe( stream ); // Pipe test messages to the stream
 });
 
 // Pipe test messages to the stream
