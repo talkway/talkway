@@ -2,21 +2,22 @@
 
 const _          = require( 'highland' );
 const shoe       = require( 'shoe' );
+const JSON$      = require( 'JSONStream' );
 
 const server     = require( './server/index.js' );
 const test$      = require( './server/dispatcher.js');
 
 const port       = 8080;
 
-const client$    = _().map( JSON.parse );
+// const client$    = _().map( JSON.parse ); // rawStream.pipe(JSONStream.parse()).pipe(streamOfObjects)
+const client$    = _();
 
 const register$  = client$.fork().where( { event: "register" } ).each( _.log );
 const message$   = client$.fork().where( { event: "message" } ).each( _.log );
 
 // Create the socket
 let estimationSocket = shoe( function ( stream /* SocketJS stream */ ) {
-	_(stream).observe().each( _.log );
-	stream.pipe( client$ );
+	stream.pipe( JSON$.parse() ).pipe( client$ );
 
 	// test$.fork().pipe( stream ); // Pipe test messages to the stream
 });
@@ -24,7 +25,7 @@ let estimationSocket = shoe( function ( stream /* SocketJS stream */ ) {
 // Pipe test messages to the stream
 // test$.pipe( client$ );
 
-estimationSocket.install( server, '/register');
+estimationSocket.install( server, '/socket');
 
 server.listen( port );
 

@@ -39,6 +39,28 @@ module.exports = function DataSourceFactory() {
 },{}],2:[function(require,module,exports){
 'use strict';
 
+module.exports = function SpeechRecognition(debug) {
+
+	var recognition = new (webkitSpeechRecognition || SpeechRecognition)();
+
+	recognition.lang = 'en-US';
+	recognition.interimResults = false;
+	recognition.maxAlternatives = 1;
+
+	if (debug) {
+		['onaudiostart', 'onaudioend', 'onend', 'onerror', 'onnomatch', 'onresult', 'onsoundstart', 'onsoundend', 'onspeechend', 'onstart'].forEach(function (eventName) {
+			return recognition[eventName] = function (e) {
+				return console.log(eventName, e);
+			};
+		});
+	}
+
+	return recognition;
+};
+
+},{}],3:[function(require,module,exports){
+'use strict';
+
 // # Algorithms
 
 function checkGeolocationSupport() {
@@ -74,7 +96,7 @@ window.onload = function () {
 // monitor location -- fires whenever position changes
 navigator.geolocation.watchPosition(positionHandler);
 
-},{}],3:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 'use strict';
 
 // Types
@@ -124,7 +146,7 @@ function createMessage(data) {
 
 module.exports = controller;
 
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 'use strict';
 
 // View
@@ -149,7 +171,7 @@ function MessageController(datasource) {
 
 module.exports = MessageController;
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 // Messages Data Source
 'use strict';
 
@@ -158,36 +180,16 @@ var MessageList = datasource();
 
 module.exports = MessageList;
 
-},{"./lib/datasource.js":1}],6:[function(require,module,exports){
+},{"./lib/datasource.js":1}],7:[function(require,module,exports){
 'use strict';
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+// TODO: rename to register.js
 
-var shoe = require('shoe');
+module.exports = RegisterController;
 
-module.exports = controller;
+var SpeechRecognition = require('./lib/speechrecognition.js');
 
-function SpeechRecognition(debug) {
-
-	var recognition = new (webkitSpeechRecognition || SpeechRecognition)();
-
-	recognition.lang = 'en-US';
-	recognition.interimResults = false;
-	recognition.maxAlternatives = 1;
-
-	if (debug) {
-		['onaudiostart', 'onaudioend', 'onend', 'onerror', 'onnomatch', 'onresult', 'onsoundstart', 'onsoundend', 'onspeechend', 'onstart'].forEach(function (eventName) {
-			return recognition[eventName] = function (e) {
-				return console.log(eventName, e);
-			};
-		});
-	}
-
-	return recognition;
-}
-
-function controller() {
-	var register$ = shoe('/register');
+function RegisterController(server$ /* Stream */) {
 
 	// View components
 	var $callsign = document.getElementById('callsign');
@@ -204,15 +206,17 @@ function controller() {
 
 	recognition.onresult = function () {
 		var result = event.results[0][0].transcript;
+		var message = { event: 'register', data: result };
 
+		// TODO: remove this state sharing
+		window.talkway.user.name = result;
+
+		// Update the View
 		$callsign.textContent = result;
 		$record.removeAttribute('disabled');
 
-		var message = { event: 'register', data: result };
-
-		console.log(typeof message === 'undefined' ? 'undefined' : _typeof(message), message);
-
-		register$.write(JSON.stringify(message));
+		// Write the `message` as a String to the `server$::Stream`
+		server$.write(JSON.stringify(message));;
 	};
 
 	// Hook up
@@ -223,20 +227,69 @@ function controller() {
 	});
 }
 
-},{"shoe":34}],7:[function(require,module,exports){
+},{"./lib/speechrecognition.js":2}],8:[function(require,module,exports){
+'use strict';
+
+module.exports = TalkController;
+
+var SpeechRecognition = require('./lib/speechrecognition.js');
+var messages = require('./messages.js');
+
+function TalkController(server$ /* Stream */) {
+	// View components
+	var $record = document.getElementById('record');
+	var label = $record.textContent;
+
+	// Hook up recognition events
+	var recognition = SpeechRecognition();
+
+	recognition.onend = function () {
+		$record.removeAttribute('disabled');
+		$record.textContent = label;
+	};
+
+	recognition.onresult = function () {
+		var result = event.results[0][0].transcript;
+		var message = { event: 'message', data: result, user: window.talkway.user };
+
+		// Update the View
+		// TODO: Render message to list
+		$record.setAttribute('disabled', true);
+
+		// Write the `message` as a String to the `server$::Stream`
+		server$.write(JSON.stringify(message));
+		messages.push(message);
+	};
+
+	// Hook up
+	$record.addEventListener("click", function (event) {
+		event.preventDefault();
+		recognition.start();
+		$record.textContent = 'Recording...';
+	});
+}
+
+},{"./lib/speechrecognition.js":2,"./messages.js":6}],9:[function(require,module,exports){
 'use strict';
 
 // Controller for the Talkway Application
 
-// Datasources
+// Vendor modules
 
+var shoe = require('shoe');
+
+// Datasources
 var messages = require('./messages.js');
 
 // Components -- inject DS into components?
 var locator = require('./locator.js');
 var speech = require('./speech.js');
+var talk = require('./talk.js');
 var message = require('./message.js')(messages);
 var messagelist = require('./messagelist.js')(messages);
+
+// Streams
+var server$ = shoe('/socket');
 
 // Stub
 var User = {
@@ -251,32 +304,43 @@ var Message = {
 	metadata: null
 };
 
+// TODO: Remove this quick and dirty state sharing hack
+window.talkway = {};
+window.talkway.user = {
+	id: Math.floor(Math.random * 10000000),
+	name: "Guest"
+};
+
 // Simulate incoming message
 setTimeout(function () {
 	return messages.push(Message);
 }, Math.random() * 5 * 1000);
 
 // Echo messages (very annoying)
+// TODO: move writing to the stream into the datasource
 function echo(datasource, data) {
 	if (data.user.id !== 1) {
-		(function () {
-			var msg = Object.assign({}, Message);
+		var msg = Object.assign({}, Message);
 
-			msg.data = "Yes, " + data.data + "!";
+		msg.data = "Yes, " + data.data + "!";
 
-			setTimeout(function () {
-				return datasource.push(msg);
-			}, Math.random() * 2 * 1000);
-		})();
+		setTimeout(stream(msg), Math.random() * 2 * 1000);
+	}
+
+	function stream(message) {
+		var msg = { event: "message", data: message };
+		server$.write(JSON.stringify(msg));
+		datasource.push(message);
 	}
 }
 
 messages.subscribe(echo);
 
 // Activate speech recognition
-speech();
+speech(server$);
+talk(server$);
 
-},{"./locator.js":2,"./message.js":3,"./messagelist.js":4,"./messages.js":5,"./speech.js":6}],8:[function(require,module,exports){
+},{"./locator.js":3,"./message.js":4,"./messagelist.js":5,"./messages.js":6,"./speech.js":7,"./talk.js":8,"shoe":36}],10:[function(require,module,exports){
 'use strict'
 
 exports.toByteArray = toByteArray
@@ -387,9 +451,9 @@ function fromByteArray (uint8) {
   return parts.join('')
 }
 
-},{}],9:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 
-},{}],10:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 (function (global){
 'use strict';
 
@@ -501,7 +565,7 @@ exports.allocUnsafeSlow = function allocUnsafeSlow(size) {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"buffer":11}],11:[function(require,module,exports){
+},{"buffer":13}],13:[function(require,module,exports){
 (function (global){
 /*!
  * The buffer module from node.js, for the browser.
@@ -2216,7 +2280,7 @@ function isnan (val) {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"base64-js":8,"ieee754":14,"isarray":17}],12:[function(require,module,exports){
+},{"base64-js":10,"ieee754":16,"isarray":19}],14:[function(require,module,exports){
 (function (Buffer){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -2327,7 +2391,7 @@ function objectToString(o) {
 }
 
 }).call(this,{"isBuffer":require("../../is-buffer/index.js")})
-},{"../../is-buffer/index.js":16}],13:[function(require,module,exports){
+},{"../../is-buffer/index.js":18}],15:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -2627,7 +2691,7 @@ function isUndefined(arg) {
   return arg === void 0;
 }
 
-},{}],14:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
   var e, m
   var eLen = nBytes * 8 - mLen - 1
@@ -2713,7 +2777,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   buffer[offset + i - d] |= s * 128
 }
 
-},{}],15:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -2738,7 +2802,7 @@ if (typeof Object.create === 'function') {
   }
 }
 
-},{}],16:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 /**
  * Determine if an object is Buffer
  *
@@ -2757,14 +2821,14 @@ module.exports = function (obj) {
     ))
 }
 
-},{}],17:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 var toString = {}.toString;
 
 module.exports = Array.isArray || function (arr) {
   return toString.call(arr) == '[object Array]';
 };
 
-},{}],18:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -2811,7 +2875,7 @@ function nextTick(fn, arg1, arg2, arg3) {
 }
 
 }).call(this,require('_process'))
-},{"_process":19}],19:[function(require,module,exports){
+},{"_process":21}],21:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -2932,7 +2996,7 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],20:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 (function (global){
 /*! https://mths.be/punycode v1.4.1 by @mathias */
 ;(function(root) {
@@ -3469,7 +3533,7 @@ process.umask = function() { return 0; };
 }(this));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],21:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -3555,7 +3619,7 @@ var isArray = Array.isArray || function (xs) {
   return Object.prototype.toString.call(xs) === '[object Array]';
 };
 
-},{}],22:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -3642,16 +3706,16 @@ var objectKeys = Object.keys || function (obj) {
   return res;
 };
 
-},{}],23:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 'use strict';
 
 exports.decode = exports.parse = require('./decode');
 exports.encode = exports.stringify = require('./encode');
 
-},{"./decode":21,"./encode":22}],24:[function(require,module,exports){
+},{"./decode":23,"./encode":24}],26:[function(require,module,exports){
 module.exports = require("./lib/_stream_duplex.js")
 
-},{"./lib/_stream_duplex.js":25}],25:[function(require,module,exports){
+},{"./lib/_stream_duplex.js":27}],27:[function(require,module,exports){
 // a duplex stream is just a stream that is both readable and writable.
 // Since JS doesn't have multiple prototypal inheritance, this class
 // prototypally inherits from Readable, and then parasitically from
@@ -3727,7 +3791,7 @@ function forEach(xs, f) {
     f(xs[i], i);
   }
 }
-},{"./_stream_readable":27,"./_stream_writable":29,"core-util-is":12,"inherits":15,"process-nextick-args":18}],26:[function(require,module,exports){
+},{"./_stream_readable":29,"./_stream_writable":31,"core-util-is":14,"inherits":17,"process-nextick-args":20}],28:[function(require,module,exports){
 // a passthrough stream.
 // basically just the most minimal sort of Transform stream.
 // Every written chunk gets output as-is.
@@ -3754,7 +3818,7 @@ function PassThrough(options) {
 PassThrough.prototype._transform = function (chunk, encoding, cb) {
   cb(null, chunk);
 };
-},{"./_stream_transform":28,"core-util-is":12,"inherits":15}],27:[function(require,module,exports){
+},{"./_stream_transform":30,"core-util-is":14,"inherits":17}],29:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -4650,7 +4714,7 @@ function indexOf(xs, x) {
   return -1;
 }
 }).call(this,require('_process'))
-},{"./_stream_duplex":25,"_process":19,"buffer":11,"buffer-shims":10,"core-util-is":12,"events":13,"inherits":15,"isarray":17,"process-nextick-args":18,"string_decoder/":37,"util":9}],28:[function(require,module,exports){
+},{"./_stream_duplex":27,"_process":21,"buffer":13,"buffer-shims":12,"core-util-is":14,"events":15,"inherits":17,"isarray":19,"process-nextick-args":20,"string_decoder/":39,"util":11}],30:[function(require,module,exports){
 // a transform stream is a readable/writable stream where you do
 // something with the data.  Sometimes it's called a "filter",
 // but that's not a great name for it, since that implies a thing where
@@ -4831,7 +4895,7 @@ function done(stream, er) {
 
   return stream.push(null);
 }
-},{"./_stream_duplex":25,"core-util-is":12,"inherits":15}],29:[function(require,module,exports){
+},{"./_stream_duplex":27,"core-util-is":14,"inherits":17}],31:[function(require,module,exports){
 (function (process){
 // A bit simpler than readable streams.
 // Implement an async ._write(chunk, encoding, cb), and it'll handle all
@@ -5360,10 +5424,10 @@ function CorkedRequest(state) {
   };
 }
 }).call(this,require('_process'))
-},{"./_stream_duplex":25,"_process":19,"buffer":11,"buffer-shims":10,"core-util-is":12,"events":13,"inherits":15,"process-nextick-args":18,"util-deprecate":40}],30:[function(require,module,exports){
+},{"./_stream_duplex":27,"_process":21,"buffer":13,"buffer-shims":12,"core-util-is":14,"events":15,"inherits":17,"process-nextick-args":20,"util-deprecate":42}],32:[function(require,module,exports){
 module.exports = require("./lib/_stream_passthrough.js")
 
-},{"./lib/_stream_passthrough.js":26}],31:[function(require,module,exports){
+},{"./lib/_stream_passthrough.js":28}],33:[function(require,module,exports){
 (function (process){
 var Stream = (function (){
   try {
@@ -5383,13 +5447,13 @@ if (!process.browser && process.env.READABLE_STREAM === 'disable' && Stream) {
 }
 
 }).call(this,require('_process'))
-},{"./lib/_stream_duplex.js":25,"./lib/_stream_passthrough.js":26,"./lib/_stream_readable.js":27,"./lib/_stream_transform.js":28,"./lib/_stream_writable.js":29,"_process":19}],32:[function(require,module,exports){
+},{"./lib/_stream_duplex.js":27,"./lib/_stream_passthrough.js":28,"./lib/_stream_readable.js":29,"./lib/_stream_transform.js":30,"./lib/_stream_writable.js":31,"_process":21}],34:[function(require,module,exports){
 module.exports = require("./lib/_stream_transform.js")
 
-},{"./lib/_stream_transform.js":28}],33:[function(require,module,exports){
+},{"./lib/_stream_transform.js":30}],35:[function(require,module,exports){
 module.exports = require("./lib/_stream_writable.js")
 
-},{"./lib/_stream_writable.js":29}],34:[function(require,module,exports){
+},{"./lib/_stream_writable.js":31}],36:[function(require,module,exports){
 var Stream = require('stream');
 var sockjs = require('sockjs-client');
 var resolve = require('url').resolve;
@@ -5454,7 +5518,7 @@ module.exports = function (u, cb) {
     return stream;
 };
 
-},{"sockjs-client":35,"stream":36,"url":38}],35:[function(require,module,exports){
+},{"sockjs-client":37,"stream":38,"url":40}],37:[function(require,module,exports){
 /* SockJS client, version 0.3.1.7.ga67f.dirty, http://sockjs.org, MIT License
 
 Copyright (c) 2011-2012 VMware, Inc.
@@ -7779,7 +7843,7 @@ if (typeof module === 'object' && module && module.exports) {
 // [*] End of lib/all.js
 
 
-},{}],36:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -7908,7 +7972,7 @@ Stream.prototype.pipe = function(dest, options) {
   return dest;
 };
 
-},{"events":13,"inherits":15,"readable-stream/duplex.js":24,"readable-stream/passthrough.js":30,"readable-stream/readable.js":31,"readable-stream/transform.js":32,"readable-stream/writable.js":33}],37:[function(require,module,exports){
+},{"events":15,"inherits":17,"readable-stream/duplex.js":26,"readable-stream/passthrough.js":32,"readable-stream/readable.js":33,"readable-stream/transform.js":34,"readable-stream/writable.js":35}],39:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -8131,7 +8195,7 @@ function base64DetectIncompleteChar(buffer) {
   this.charLength = this.charReceived ? 3 : 0;
 }
 
-},{"buffer":11}],38:[function(require,module,exports){
+},{"buffer":13}],40:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -8865,7 +8929,7 @@ Url.prototype.parseHost = function() {
   if (host) this.hostname = host;
 };
 
-},{"./util":39,"punycode":20,"querystring":23}],39:[function(require,module,exports){
+},{"./util":41,"punycode":22,"querystring":25}],41:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -8883,7 +8947,7 @@ module.exports = {
   }
 };
 
-},{}],40:[function(require,module,exports){
+},{}],42:[function(require,module,exports){
 (function (global){
 
 /**
@@ -8954,4 +9018,4 @@ function config (name) {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}]},{},[7]);
+},{}]},{},[9]);

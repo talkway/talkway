@@ -1,37 +1,12 @@
 'use strict';
 
-const shoe = require( 'shoe' );
+// TODO: rename to register.js
 
-module.exports = controller;
+module.exports = RegisterController;
 
-function SpeechRecognition( debug ) {
+const SpeechRecognition = require( './lib/speechrecognition.js' );
 
-	const recognition = new ( webkitSpeechRecognition || SpeechRecognition )();
-
-	recognition.lang            = 'en-US';
-	recognition.interimResults  = false;
-	recognition.maxAlternatives = 1;
-
-	if( debug ) {
-		[
-		 'onaudiostart',
-		 'onaudioend',
-		 'onend',
-		 'onerror',
-		 'onnomatch',
-		 'onresult',
-		 'onsoundstart',
-		 'onsoundend',
-		 'onspeechend',
-		 'onstart'
-	 	].forEach( eventName => recognition[ eventName ] = e => console.log( eventName, e ) );
-	}
-
-	return recognition;
-}
-
-function controller() {
-	let register$ = shoe( '/register' );
+function RegisterController( server$ /* Stream */) {
 
 	// View components
 	const $callsign = document.getElementById( 'callsign' );
@@ -47,16 +22,18 @@ function controller() {
 	};
 
 	recognition.onresult = function() {
-		let result = event.results[0][0].transcript;
+		let result  = event.results[0][0].transcript;
+		let message = { event: 'register', data: result };
 
+		// TODO: remove this state sharing
+		window.talkway.user.name = result;
+
+		// Update the View
 		$callsign.textContent = result;
 		$record.removeAttribute( 'disabled' );
 
-		let message = { event: 'register', data: result };
-
-		console.log( typeof message, message );
-
-		register$.write( JSON.stringify( message ) );
+		// Write the `message` as a String to the `server$::Stream`
+		server$.write( JSON.stringify( message ) );;
 	};
 
 	// Hook up

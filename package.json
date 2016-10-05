@@ -5,11 +5,13 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha",
-    "build": "browserify ./code/talkway.js -t babelify --outfile ./static/app.js --source-maps"
+    "build": "browserify ./code/talkway.js -t babelify --outfile ./static/app.js --source-maps",
+    "deploy": "cp -R . /Volumes/web/talkway && rm -rf /Volumes/web/talkway/.git"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "JSONStream": "^1.2.1",
     "ecstatic": "^2.1.0",
     "gm.layout": "0.0.2",
     "highland": "^2.10.0",
