@@ -6,11 +6,15 @@
 	// readable: presentation stream
 	// writable: estimation stream (estimation value for player
 
-let http     = require( 'http' );
+let protocol = require( 'https' );
 let fs       = require( 'fs' );
 let ecstatic = require( 'ecstatic' )( __dirname + '/../static' );
 
+let options = {
+	key:  fs.readFileSync( `${__dirname}/../operations/key.pem` ),
+	cert: fs.readFileSync( `${__dirname}/../operations/cert.pem` )
+};
 
-let server = http.createServer( ecstatic );
+let server = protocol.createServer( options, ecstatic );
 
 module.exports = server;
