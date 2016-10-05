@@ -11,9 +11,11 @@ let fs       = require( 'fs' );
 let ecstatic = require( 'ecstatic' )( __dirname + '/../static' );
 
 let options = {
-	key:  fs.readFileSync( `${__dirname}/../operations/key.pem` ),
-	cert: fs.readFileSync( `${__dirname}/../operations/cert.pem` )
+	key:  fs.readFileSync( `${process.cwd()}/key.pem` ),
+	cert: fs.readFileSync( `${process.cwd()}/cert.pem` )
 };
+
+console.log( options );
 
 let server = protocol.createServer( options, ecstatic );
 
