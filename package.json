@@ -6,7 +6,8 @@
   "scripts": {
     "test": "mocha",
     "build": "browserify ./code/talkway.js -t babelify --outfile ./static/app.js --source-maps",
-    "deploy": "cp -R . /Volumes/web/talkway && rm -rf /Volumes/web/talkway/.git"
+    "start": "node --harmony index.js",
+    "prestart": "operations/generatekey.sh"
   },
   "author": "",
   "license": "ISC",
