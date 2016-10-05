@@ -7,7 +7,7 @@ const JSON$      = require( 'JSONStream' );
 const server     = require( './server/index.js' );
 const test$      = require( './server/dispatcher.js');
 
-const port       = 8080;
+const port       = env.PORT || 8080;
 
 // const client$    = _().map( JSON.parse ); // rawStream.pipe(JSONStream.parse()).pipe(streamOfObjects)
 const client$    = _();
