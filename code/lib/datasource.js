@@ -8,14 +8,14 @@ module.exports = function DataSourceFactory() {
 	Object.defineProperties( array, {
 		'push': {
 			enumerable: false,
-			value: (data) => {
+			value: ( data ) => {
 				console.log( 'Pushed %o to datasource', data );
 
 				// Add data to the datasource
 				Array.prototype.push.call( array, data );
 
 				// Call each subscriber with data & array
-				array.__subscribers.forEach( (fn) => fn( array, data ) );
+				array.__subscribers.forEach( ( fn ) => fn( array, data ) );
 			}
 		},
 		'subscribe': {
